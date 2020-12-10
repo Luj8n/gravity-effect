@@ -14,7 +14,7 @@ class Point {
   }
   addForce(forceVector) {
     // F = ma --> a = F / m
-    this.acc = forceVector.div(this.mass);
+    this.acc.add(forceVector.div(this.mass));
   }
   addMass(gainedMass) {
     this.mass += gainedMass;
@@ -23,7 +23,7 @@ class Point {
   }
   show() {
     L.fill("white");
-    L.Ellipse(this.pos.x, this.pos.y, this.diameter);
+    L.Ellipse(this.pos.x, this.pos.y, this.diameter * 2);
   }
   interact(allPoints) {
     let newPoints = [...allPoints];

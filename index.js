@@ -9,7 +9,7 @@ function setup() {
 addEventListener("click", addPoint);
 
 function addPoint(e) {
-  points.push(new Point(e.clientX, e.clientY, 100, 1));
+  points.push(new Point(e.clientX, e.clientY, 100, 10));
 }
 
 function draw() {
