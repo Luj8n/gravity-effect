@@ -27,7 +27,7 @@ class Point {
   }
   show() {
     L.fill("white");
-    L.Ellipse(this.pos.x, this.pos.y, this.diameter * 2);
+    L.Ellipse(this.pos.x, this.pos.y, this.diameter);
   }
   interact(allPoints) {
     if (!this.shouldRemove) {
