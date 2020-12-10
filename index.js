@@ -1,4 +1,4 @@
-const G = 0.01;
+const G = 0.1;
 
 let points = [];
 
@@ -14,11 +14,16 @@ function addPoint(e) {
 
 function draw() {
   L.background("#222222");
-  let currentPoints = [...points];
   points.forEach((point) => {
-    currentPoints = point.interact(currentPoints);
+    point.interact(points);
+  });
+  points = points.filter((point) => {
+    return !point.shouldRemove;
+  });
+  points.forEach((point) => {
     point.update();
+  });
+  points.forEach((point) => {
     point.show();
   });
-  points = currentPoints;
 }

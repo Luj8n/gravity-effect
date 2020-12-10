@@ -6,11 +6,15 @@ class Point {
     this.mass = mass;
     this.density = density;
     this.calcDiameter();
+    this.shouldRemove = false;
+  }
+  toBeRemoved() {
+    this.shouldRemove = true;
   }
   calcDiameter() {
     // This is 2D, so density = m / S --> S = m / density
     // S = PI * r^2 and d = 2 * r
-    this.diameter = 2 * Math.sqrt(this.mass / this.density / Math.PI);
+    this.diameter = 2 * Math.sqrt(this.mass / (this.density * Math.PI));
   }
   addForce(forceVector) {
     // F = ma --> a = F / m
@@ -26,30 +30,31 @@ class Point {
     L.Ellipse(this.pos.x, this.pos.y, this.diameter * 2);
   }
   interact(allPoints) {
-    let newPoints = [...allPoints];
-    allPoints.forEach((point) => {
-      if (point !== this) {
-        // if the points intersect, add smaller's mass to the biggers one
-        let difference = L.createVector2D(point.pos.x - this.pos.x, point.pos.y - this.pos.y);
-        if (difference.mag() < this.diameter / 2 + point.diameter / 2) {
-          if (this.mass >= point.mass) {
-            this.addMass(point.mass);
-            newPoints = newPoints.filter((el) => el !== point);
+    if (!this.shouldRemove) {
+      allPoints.forEach((otherPoint) => {
+        if (otherPoint !== this) {
+          // if the points intersect, add smaller's mass to the biggers one
+          let direction = L.createVector2D(otherPoint.pos.x - this.pos.x, otherPoint.pos.y - this.pos.y);
+          let distance = L.dist(this.pos.x, this.pos.y, otherPoint.pos.x, otherPoint.pos.y);
+          if (distance < this.diameter / 2 + otherPoint.diameter / 2) {
+            if (this.mass >= otherPoint.mass) {
+              otherPoint.toBeRemoved();
+              this.addMass(otherPoint.mass);
+            } else {
+              this.toBeRemoved();
+              otherPoint.addMass(this.mass);
+            }
           } else {
-            point.addMass(this.mass);
-            newPoints = newPoints.filter((el) => el !== this);
+            // We know the direction of the force,
+            // now we just need to calculate the magnitude (strength) of the force.
+            // Gravitational force is F = G * m1 * m2 / r^2, G is just a constant
+            let forceMag = (G * this.mass * otherPoint.mass) / Math.pow(distance, 2);
+            direction.setMag(forceMag);
+            this.addForce(direction);
           }
-        } else {
-          // We know the direction of the force,
-          // now we just need to calculate the magnitude (strength) of the force.
-          // Gravitational force is F = G * m1 * m2 / r^2, G is just a constant
-          let forceMag = (G * this.mass * point.mass) / difference.mag();
-          difference.setMag(forceMag);
-          this.addForce(difference);
         }
-      }
-    });
-    return newPoints;
+      });
+    }
   }
   update() {
     this.vel.add(this.acc);
