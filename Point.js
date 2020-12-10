@@ -35,13 +35,18 @@ class Point {
         if (otherPoint !== this) {
           // if the points intersect, add smaller's mass to the biggers one
           let direction = L.createVector2D(otherPoint.pos.x - this.pos.x, otherPoint.pos.y - this.pos.y);
+          direction.normalize();
           let distance = L.dist(this.pos.x, this.pos.y, otherPoint.pos.x, otherPoint.pos.y);
           if (distance < this.diameter / 2 + otherPoint.diameter / 2) {
             if (this.mass >= otherPoint.mass) {
               otherPoint.toBeRemoved();
+              // F = ma
+              this.addForce(otherPoint.vel.mult(otherPoint.mass));
               this.addMass(otherPoint.mass);
             } else {
               this.toBeRemoved();
+              // F = ma
+              otherPoint.addForce(this.vel.mult(this.mass));
               otherPoint.addMass(this.mass);
             }
           } else {
